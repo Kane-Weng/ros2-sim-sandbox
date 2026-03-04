@@ -35,6 +35,7 @@
                         <namespace>/gps</namespace>
                         <remapping>~/out:=${topic_name}</remapping>
                     </ros>
+                    <frame_name>gps_frame_${prefix}</frame_name>
                 </plugin>
             </sensor>
         </gazebo>

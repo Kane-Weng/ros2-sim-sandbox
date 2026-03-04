@@ -22,6 +22,12 @@ This repo is a ROS 2 simulation environment designed for testing and benchmarkin
 | `sandbox_navigation` | Custom Pure Pursuit controller and waypoint management logic. |
 | `sandbox_perception` | *(Future)* LiDAR-based object detection and point cloud processing. |
 
+## Usage
+1. Open preview for the vehicle in RViz:
+    ```bash
+    ros2 launch sandbox_description robot_view.launch.py
+    ```
+
 ## Credits
 This project was inspired by and utilizes logic/kinematics structures from the [hunter_robot](https://github.com/LCAS/hunter_robot) repository (Apache License 2.0).
 
