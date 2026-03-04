@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ros2_sim_sandbox">
-
     <!-- Macros -->
     <xacro:include filename="colors.xacro" />
     <xacro:include filename="inertial_macros.xacro" />
@@ -31,7 +30,7 @@
     <xacro:property name="z_cog_offset" value="-0.2945" />
     <xacro:property name="max_steer_angle_central" value="0.2618" />
     
-    <!-- BASE_FOOTPRINT: the origin when spawning in Gazebo -->
+    <!-- BASE_FOOTPRINT- the origin when spawning in Gazebo -->
     <link name="base_footprint"/>
     <joint name="base_footprint_joint" type="fixed">
         <parent link="base_footprint"/>
@@ -39,7 +38,7 @@
         <origin xyz="0 0 ${chassis_height/2.0}" rpy="0 0 0"/>
     </joint>
 
-    <!-- BASE_LINK: geometric center of the robot's body -->
+    <!-- BASE_LINK- geometric center of the robot's body -->
     <link name="base_link">
     </link>
 
