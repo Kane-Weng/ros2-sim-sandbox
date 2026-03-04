@@ -47,8 +47,9 @@
     <link name="chassis">
         <visual> 
             <geometry>
-                <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+                <box size="${chassis_length} ${chassis_width} ${chassis_height-0.228}"/>
             </geometry>
+            <origin xyz="0 0 0.114"/>
             <material name="white"/>
         </visual>
         <collision>
@@ -75,7 +76,7 @@
     <joint name="left_back_wheel_joint" type="continuous">
         <parent link="chassis"/>
         <child link="left_back_wheel"/>
-        <origin xyz="-${x_wheel_separation}/2.0 ${y_wheel_separation}/2.0 ${z_base_to_wheel}" rpy="-${pi/2} 0 0"/>
+        <origin xyz="-${x_wheel_separation/2.0} ${y_wheel_separation/2.0} ${z_base_to_wheel}" rpy="-${pi/2} 0 0"/>
         <axis xyz="0 0 1"/>
         <dynamics damping="0.2" friction="0.5"/> 
         <limit effort="200.0" velocity="25.0"/>
