@@ -1,0 +1,22 @@
+# ROS 2 Build Artifacts
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+
+# System and IDEs
+.DS_Store
+.vscode/
+.idea/
+
+# Local data/logs
+*.log
+*.csv
+*.env
