@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ros2_sim_sandbox">
+
+    <!-- Macros -->
+    <xacro:include filename="colors.xacro" />
+    <xacro:include filename="inertial_macros.xacro" />
+    <xacro:macro name="wheel" params="name">
+        <link name="${name}">
+            <visual>
+                <geometry> <cylinder length="0.213" radius="0.228" /> </geometry>
+                <material name="blue"/>
+            </visual>
+            <collision>
+                <geometry> <cylinder length="0.213" radius="0.228" /> </geometry>
+            </collision>
+            <xacro:inertial_cylinder mass="20" length="0.213" radius="0.228">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:inertial_cylinder>
+        </link>
+        <gazebo reference="${name}"> <material>Gazebo/Blue</material> </gazebo>
+        <xacro:gazebo_friction reference="${name}"/>
+    </xacro:macro>
+
+    <!-- Constants for robot dimensions -->
+    <xacro:property name="chassis_length" value="3.055" />
+    <xacro:property name="chassis_width" value="1.588" />
+    <xacro:property name="chassis_height" value="1.905" />
+    <xacro:property name="x_wheel_separation" value="2.082" />
+    <xacro:property name="y_wheel_separation" value="0.94833" />
+    <xacro:property name="z_base_to_wheel" value="-0.72" />
+    <xacro:property name="z_cog_offset" value="-0.2945" />
+    <xacro:property name="max_steer_angle_central" value="0.2618" />
+    
+    <!-- BASE_FOOTPRINT: the origin when spawning in Gazebo -->
+    <link name="base_footprint"/>
+    <joint name="base_footprint_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 ${chassis_height/2.0}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- BASE_LINK: geometric center of the robot's body -->
+    <link name="base_link">
+    </link>
+
+    <!-- CHASSIS -->
+    <link name="chassis">
+        <visual> 
+            <geometry>
+                <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${chassis_length} ${chassis_width} ${chassis_height-0.55}"/>
+            </geometry>
+            <origin xyz="0 0 0.20"/> 
+        </collision>
+        <xacro:inertial_box mass="500" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}">
+            <origin xyz="0 0 ${z_cog_offset}" rpy="0 0 0"/>
+        </xacro:inertial_box>
+        <gazebo reference="chassis">
+            <material>Gazebo/White</material>
+        </gazebo>
+    </link>
+    <joint name="chassis_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="chassis"/>
+        <origin xyz="0 0 0"/>
+    </joint>
+
+    <!-- LEFT_BACK_WHEEL -->
+    <xacro:wheel name="left_back_wheel"/>
+    <joint name="left_back_wheel_joint" type="continuous">
+        <parent link="chassis"/>
+        <child link="left_back_wheel"/>
+        <origin xyz="-${x_wheel_separation}/2.0 ${y_wheel_separation}/2.0 ${z_base_to_wheel}" rpy="-${pi/2} 0 0"/>
+        <axis xyz="0 0 1"/>
+        <dynamics damping="0.2" friction="0.5"/> 
+        <limit effort="200.0" velocity="25.0"/>
+    </joint>
+
+    <!-- RIGHT BACK WHEEL -->
+    <xacro:wheel name="right_back_wheel"/>
+    <joint name="right_back_wheel_joint" type="continuous">
+        <parent link="chassis"/>
+        <child link="right_back_wheel"/>
+        <origin xyz="-${x_wheel_separation/2.0} -${y_wheel_separation/2.0} ${z_base_to_wheel}" rpy="-${pi/2} 0 0"/>
+        <axis xyz="0 0 1"/>
+        <dynamics damping="0.2" friction="0.5"/> 
+        <limit effort="200.0" velocity="25.0"/>
+        <mimic joint="left_back_wheel_joint" multiplier="1.0" offset="0.0"/>
+    </joint>
+
+    <!-- LEFT STEERING LINK -->
+    <link name="front_left_steering_link">
+        <xacro:virtual/>
+        <xacro:inertial_steering_link/>
+    </link>
+    <joint name="front_left_steering_joint" type="revolute">
+        <parent link="chassis"/>
+        <child link="front_left_steering_link"/> 
+        <origin xyz="${x_wheel_separation/2.0} ${y_wheel_separation/2.0} ${z_base_to_wheel}" rpy="${pi/2} 0 0" />
+        <axis   xyz="0 1 0" />
+        <limit  lower="-${max_steer_angle_central}"  upper="${max_steer_angle_central}"  effort="50.0"  velocity="5" />
+        <dynamics damping="0.2"/>
+    </joint>
+
+    <!-- LEFT FRONT WHEEL -->
+    <xacro:wheel name="left_front_wheel"/>
+    <joint name="left_front_wheel_joint" type="continuous">
+        <parent link="front_left_steering_link"/>
+        <child link="left_front_wheel"/>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <axis   xyz="0 0 1" />
+    </joint>
+
+    <!-- ================================================ -->
+    <!-- RIGHT STEERING LINK -->
+    <link name="front_right_steering_link">
+        <xacro:virtual/>
+        <xacro:inertial_steering_link/>
+    </link>
+    <joint name="front_right_steering_joint" type="revolute">
+        <parent link="chassis"/>
+        <child link="front_right_steering_link"/> 
+        <origin xyz="${x_wheel_separation/2.0} -${y_wheel_separation/2.0} ${z_base_to_wheel}" rpy="${pi/2} 0 0" />
+        <axis   xyz="0 1 0" />
+        <limit  lower="-${max_steer_angle_central}"  upper="${max_steer_angle_central}"  effort="50.0"  velocity="5" />
+        <dynamics damping="0.2"/>
+        <mimic joint="front_left_steering_joint" multiplier="1.0" offset="0.0"/>
+    </joint>
+
+    <!-- RIGHT FRONT WHEEL -->
+     <xacro:wheel name="right_front_wheel"/>
+    <joint name="right_front_wheel_joint" type="continuous">
+        <parent link="front_right_steering_link"/>
+        <child link="right_front_wheel"/>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <axis   xyz="0 0 -1" />
+    </joint>
+
+</robot>
