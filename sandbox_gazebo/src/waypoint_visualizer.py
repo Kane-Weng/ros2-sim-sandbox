@@ -10,17 +10,10 @@ class WaypointVisualizer(Node):
         self.publisher = self.create_publisher(MarkerArray, 'navigation_waypoints', 10)
         
         # Waypoints
-        # TODO: Set waypoints using yaml
-        self.waypoints = [
-            # Straight away
-            [0.0, 0.0], [10.0, 0.0], [20.0, 0.0], 
-            # Large 10m radius turn (Center at 20, 10)
-            [27.07, 2.93], [30.0, 10.0], [27.07, 17.07], 
-            # Straight back
-            [20.0, 20.0], [10.0, 20.0], [0.0, 20.0], 
-            # Turn back to start (Center at 0, 10)
-            [-7.07, 17.07], [-10.0, 10.0], [-7.07, 2.93], [0.0, 0.0]
-        ]
+        self.declare_parameter('waypoints', [0.0, 0.0])
+        waypoints_flat = self.get_parameter('waypoints').value
+        self.waypoints = [waypoints_flat[i:i + 2] for i in range(0, len(waypoints_flat), 2)]
+        self.timer = self.create_timer(1.0, self.publish_markers)
 
     def publish_markers(self):
         marker_array = MarkerArray()

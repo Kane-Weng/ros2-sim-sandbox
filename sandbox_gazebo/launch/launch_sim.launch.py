@@ -21,10 +21,10 @@ def generate_launch_description():
     # Launch configuration for use_sim_time
     use_sim_time_config = LaunchConfiguration('use_sim_time')
 
-
+    waypoint_file = os.path.join(get_package_share_directory('sandbox_navigation'), 'config', 'waypoints.yaml')
     world_file = os.path.join(get_package_share_directory("sandbox_gazebo"), 'worlds', 'empty.world')
     gazebo_params_file = os.path.join(get_package_share_directory("sandbox_gazebo"), 'config', 'gazebo_params.yaml')
-
+    rviz_file = os.path.join(get_package_share_directory('sandbox_description'), 'rviz', 'navigation.rviz')
 
     # Start Gazebo
     gazebo = IncludeLaunchDescription(
@@ -34,10 +34,7 @@ def generate_launch_description():
             'world': world_file,
             'extra_gazebo_args': '--ros-args --params-file ' + gazebo_params_file
         }.items()
-    )
-
-    sandbox_description_path = os.path.join(
-        get_package_share_directory('sandbox_description'))
+    )    
 
     # Get URDF via xacro
     robot_description_content = Command(
@@ -84,8 +81,7 @@ def generate_launch_description():
         package='rviz2',
         executable='rviz2',
         arguments=[
-            '-d',
-            os.path.join(sandbox_description_path, 'rviz/robot_view.rviz'),
+            '-d', rviz_file
         ],
         output='screen',
         parameters=[{'use_sim_time': use_sim_time_config}]
@@ -96,7 +92,10 @@ def generate_launch_description():
         executable='waypoint_visualizer.py',
         name='waypoint_visualizer',
         output='screen',
-        parameters=[{'use_sim_time': use_sim_time_config}]
+        parameters=[
+            {'use_sim_time': use_sim_time_config},
+            waypoint_file
+        ]
     )
 
     return LaunchDescription([

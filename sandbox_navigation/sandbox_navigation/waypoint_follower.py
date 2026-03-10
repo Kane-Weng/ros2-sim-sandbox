@@ -30,17 +30,10 @@ class WaypointFollower(Node):
         self.odom_sub = self.create_subscription(Odometry, '/odometry/global', self.velocity_callback, 10)
         self.cmd_pub = self.create_publisher(Twist, '/ackermann_like_controller/cmd_vel', 10)
         
-        # TODO: Set waypoints using yaml
-        self.waypoints = [
-            # Straight away
-            [0.0, 0.0], [10.0, 0.0], [20.0, 0.0], 
-            # Large 10m radius turn (Center at 20, 10)
-            [27.07, 2.93], [30.0, 10.0], [27.07, 17.07], 
-            # Straight back
-            [20.0, 20.0], [10.0, 20.0], [0.0, 20.0], 
-            # Turn back to start (Center at 0, 10)
-            [-7.07, 17.07], [-10.0, 10.0], [-7.07, 2.93], [0.0, 0.0]
-        ]
+        # Waypoints
+        self.declare_parameter('waypoints', [0.0, 0.0])
+        waypoints_flat = self.get_parameter('waypoints').value
+        self.waypoints = [waypoints_flat[i:i + 2] for i in range(0, len(waypoints_flat), 2)]
 
         # Variables for control loop
         self.current_wp_idx = 0
