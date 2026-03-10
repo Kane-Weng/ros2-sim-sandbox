@@ -91,6 +91,14 @@ def generate_launch_description():
         parameters=[{'use_sim_time': use_sim_time_config}]
     )
 
+    waypoint_visualizer = Node(
+        package='sandbox_gazebo',
+        executable='waypoint_visualizer.py',
+        name='waypoint_visualizer',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time_config}]
+    )
+
     return LaunchDescription([
         use_sim_time,
         RegisterEventHandler(
@@ -109,4 +117,5 @@ def generate_launch_description():
         rviz,
         node_robot_state_publisher,
         spawn_entity,
+        waypoint_visualizer,
     ])

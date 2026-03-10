@@ -30,7 +30,7 @@ class WaypointFollower(Node):
         self.odom_sub = self.create_subscription(Odometry, '/odometry/global', self.velocity_callback, 10)
         self.cmd_pub = self.create_publisher(Twist, '/ackermann_like_controller/cmd_vel', 10)
         
-        # TODO: Set waypoints
+        # TODO: Set waypoints using yaml
         self.waypoints = [
             # Straight away
             [0.0, 0.0], [10.0, 0.0], [20.0, 0.0], 

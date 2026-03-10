@@ -29,4 +29,10 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}
 )
 
+# Install the python script
+install(PROGRAMS
+  src/waypoint_visualizer.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
