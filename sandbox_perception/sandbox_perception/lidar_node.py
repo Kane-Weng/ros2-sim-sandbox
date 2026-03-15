@@ -7,9 +7,10 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 
-from geometry_msgs.msg import Point32, PolygonStamped
+from geometry_msgs.msg import Point32, PolygonStamped, Point
 from sensor_msgs.msg import PointCloud2
 from sensor_msgs_py import point_cloud2
+from visualization_msgs.msg import Marker
 
 
 # ----------------------------
@@ -199,11 +200,11 @@ class LidarObstacleNode(Node):
         super().__init__('LidarObstacleNode')
 
         # Parameters
-        self.declare_parameter('input_topic', '/velodyne_points')
+        self.declare_parameter('input_topic', '/scan')
         self.declare_parameter('obstacles_topic', '/obstacles')
         self.declare_parameter('publish_debug_clouds', True)
 
-        self.declare_parameter('roi_min_x', 0.0)
+        self.declare_parameter('roi_min_x', 0.3)
         self.declare_parameter('roi_max_x', 12.0)
         self.declare_parameter('roi_min_y', -4.0)
         self.declare_parameter('roi_max_y', 4.0)
@@ -258,14 +259,15 @@ class LidarObstacleNode(Node):
             self.nonground_pub = self.create_publisher(PointCloud2, '/nonground_points', 10)
             self.front_pub = self.create_publisher(PointCloud2, '/front_points', 10)
 
+        self.roi_marker_pub = self.create_publisher(Marker, '/roi_visual', 10)
+        self.create_timer(1.0, self.publish_roi_marker) # Publish once a second
+
         self.get_logger().info('LiDAR obstacle publisher is ready')
 
     def pointcloud_callback(self, msg: PointCloud2):
-        # Read XYZ points. Skip NaNs immediately.
-        xyz = np.array(
-            list(point_cloud2.read_points(msg, field_names=('x', 'y', 'z'), skip_nans=True)),
-            dtype=np.float32
-        )
+        # Force extraction into a pure list of tuples
+        raw_data = point_cloud2.read_points(msg, field_names=('x', 'y', 'z'), skip_nans=True)
+        xyz = np.array([(p[0], p[1], p[2]) for p in raw_data], dtype=np.float32)
 
         if xyz.size == 0:
             self.get_logger().warn('Received empty point cloud')
@@ -334,6 +336,53 @@ class LidarObstacleNode(Node):
         self.get_logger().info(
             f'Published {obstacle_count} obstacle polygon(s) in frame "{msg.header.frame_id}"'
         )
+    
+    def publish_roi_marker(self):
+        marker = Marker()
+        # FIX 1: Ensure this matches your actual Lidar frame name
+        marker.header.frame_id = "laser_frame" 
+        marker.header.stamp = self.get_clock().now().to_msg()
+        marker.type = Marker.LINE_LIST
+        marker.action = Marker.ADD
+        
+        # Identity orientation (Required for Markers to show up correctly)
+        marker.pose.orientation.w = 1.0
+        
+        marker.scale.x = 0.05 # Thickness
+        marker.color.a = 0.5  # Semi-transparent so it's not distracting
+        marker.color.r = 1.0  # Red
+        
+        x_lim = [self.roi_min_x, self.roi_max_x]
+        y_lim = [self.roi_min_y, self.roi_max_y]
+        z_lim = [self.roi_min_z, self.roi_max_z]
+        
+        # Helper to create the lines for a wireframe box
+        def add_line(p1, p2):
+            pt1, pt2 = Point(), Point()
+            pt1.x, pt1.y, pt1.z = float(p1[0]), float(p1[1]), float(p1[2])
+            pt2.x, pt2.y, pt2.z = float(p2[0]), float(p2[1]), float(p2[2])
+            marker.points.append(pt1)
+            marker.points.append(pt2)
+
+        # Bottom square
+        add_line([x_lim[0], y_lim[0], z_lim[0]], [x_lim[1], y_lim[0], z_lim[0]])
+        add_line([x_lim[1], y_lim[0], z_lim[0]], [x_lim[1], y_lim[1], z_lim[0]])
+        add_line([x_lim[1], y_lim[1], z_lim[0]], [x_lim[0], y_lim[1], z_lim[0]])
+        add_line([x_lim[0], y_lim[1], z_lim[0]], [x_lim[0], y_lim[0], z_lim[0]])
+
+        # Top square
+        add_line([x_lim[0], y_lim[0], z_lim[1]], [x_lim[1], y_lim[0], z_lim[1]])
+        add_line([x_lim[1], y_lim[0], z_lim[1]], [x_lim[1], y_lim[1], z_lim[1]])
+        add_line([x_lim[1], y_lim[1], z_lim[1]], [x_lim[0], y_lim[1], z_lim[1]])
+        add_line([x_lim[0], y_lim[1], z_lim[1]], [x_lim[0], y_lim[0], z_lim[1]])
+
+        # Pillars
+        add_line([x_lim[0], y_lim[0], z_lim[0]], [x_lim[0], y_lim[0], z_lim[1]])
+        add_line([x_lim[1], y_lim[0], z_lim[0]], [x_lim[1], y_lim[0], z_lim[1]])
+        add_line([x_lim[1], y_lim[1], z_lim[0]], [x_lim[1], y_lim[1], z_lim[1]])
+        add_line([x_lim[0], y_lim[1], z_lim[0]], [x_lim[0], y_lim[1], z_lim[1]])
+        
+        self.roi_marker_pub.publish(marker)
 
 
 def main(args=None):

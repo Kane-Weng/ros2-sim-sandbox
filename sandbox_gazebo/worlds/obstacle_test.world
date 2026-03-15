@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="default">
+    <!-- Prevent GPS/Equator flip by setting lat & lon -->
+     <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>45.0</latitude_deg>  <longitude_deg>-70.0</longitude_deg>
+      <elevation>0.0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <model name="test_pedestrian">
+      <static>true</static>
+      <pose>3.0 0 0.9 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>0.2</radius>
+              <length>1.8</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.2</radius>
+              <length>1.8</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient> </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="test_box_left">
+      <static>true</static>
+      <pose>5.0 1.5 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.5 0.5 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.5 0.5 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>0 1 0 1</ambient> </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="test_barrier">
+      <static>true</static>
+      <pose>9.0 -1.0 0.5 0 0 0.4</pose> <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>1.0 3.0 1.0</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>1.0 3.0 1.0</size></box>
+          </geometry>
+          <material>
+            <ambient>0 0 1 1</ambient> </material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>

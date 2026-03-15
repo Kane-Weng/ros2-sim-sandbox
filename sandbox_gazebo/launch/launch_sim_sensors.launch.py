@@ -3,6 +3,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
 
 def generate_launch_description():
 
@@ -28,8 +29,17 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(simulation_launch_path)
     )
 
+    lidar_node = Node(
+        package='sandbox_perception',
+        executable='lidar_node',
+        name='lidar_node',
+        output='screen',
+        parameters=[{'use_sim_time': True}]
+    )
+
     ld = LaunchDescription()
     ld.add_action(launch_simulation)
     ld.add_action(launch_localization)
+    ld.add_action(lidar_node)
 
     return ld

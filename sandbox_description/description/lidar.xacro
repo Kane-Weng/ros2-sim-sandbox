@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+    <xacro:property name="laser_tilt" value="0.2618" />
 
     <joint name="laser_joint" type="fixed">
         <parent link="chassis"/>
         <child link="laser_frame"/>
-        <origin xyz="0 0 0.96" rpy="0 0 0"/>
+        <!-- move the lidar to front; tilted -->
+        <origin xyz="1.53 0 0.96" rpy="0 ${laser_tilt} 0"/>     
     </joint>
 
     <link name="laser_frame">
@@ -34,10 +36,17 @@
             <ray>
                 <scan>
                     <horizontal>
-                        <samples>360</samples>
-                        <min_angle>-3.14</min_angle>
-                        <max_angle>3.14</max_angle>
+                        <samples>180</samples>
+                        <resolution>1</resolution>
+                        <min_angle>-1.5708</min_angle>
+                        <max_angle>1.5708</max_angle>
                     </horizontal>
+                    <vertical>
+                        <samples>16</samples>
+                        <resolution>1</resolution>
+                        <min_angle>-0.2618</min_angle> 
+                        <max_angle>0.2618</max_angle>
+                    </vertical>
                 </scan>
                 <range>
                     <min>0.3</min>

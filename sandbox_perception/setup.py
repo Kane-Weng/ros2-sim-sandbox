@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'lidar_node = sandbox_perception.lidar_node:main',
         ],
     },
 )

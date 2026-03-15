@@ -22,7 +22,7 @@ def generate_launch_description():
     use_sim_time_config = LaunchConfiguration('use_sim_time')
 
     waypoint_file = os.path.join(get_package_share_directory('sandbox_navigation'), 'config', 'waypoints.yaml')
-    world_file = os.path.join(get_package_share_directory("sandbox_gazebo"), 'worlds', 'empty.world')
+    world_file = os.path.join(get_package_share_directory("sandbox_gazebo"), 'worlds', 'obstacle_test.world')
     gazebo_params_file = os.path.join(get_package_share_directory("sandbox_gazebo"), 'config', 'gazebo_params.yaml')
     rviz_file = os.path.join(get_package_share_directory('sandbox_description'), 'rviz', 'navigation.rviz')
 
@@ -112,9 +112,9 @@ def generate_launch_description():
                 on_exit=[load_tricycle_controller],
             )
         ),
-        gazebo,
         rviz,
         node_robot_state_publisher,
         spawn_entity,
         waypoint_visualizer,
+        gazebo,
     ])
